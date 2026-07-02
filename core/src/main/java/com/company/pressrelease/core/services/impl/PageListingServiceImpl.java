@@ -111,9 +111,9 @@ public class PageListingServiceImpl implements PageListingService {
                 )
         );
 
-        int limit = (numberOfCards != null) ? numberOfCards : 5;
+      
         return rawItems.stream()
-                .limit(limit)
+                .limit(numberOfCards)
                 .collect(Collectors.toList());
     }
 
@@ -216,7 +216,7 @@ public class PageListingServiceImpl implements PageListingService {
             String template = page.getProperties().get("cq:template", String.class);
             if (template != null) {
                 for (TemplateType type : values()) {
-                    if (template.equals(type.getTemplatePath()) || template.endsWith("/" + type.name().toLowerCase().replace("_", "-"))) {
+                    if (template.equals(type.getTemplatePath()) {
                         return type;
                     }
                 }
