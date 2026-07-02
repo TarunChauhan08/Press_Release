@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workspaceFilter version="1.0">
+    <filter root="/conf/pressrelease" mode="merge"/>
+    <filter root="/content/pressrelease" mode="merge"/>
+    <filter root="/content/dam/pressrelease" mode="merge">
+        <exclude pattern="/content/dam/pressrelease(/.*)?"/>
+        <include pattern="/content/dam/pressrelease/jcr:content(/.*)?"/>
+    </filter>
+    <filter root="/content/dam/pressrelease/asset.jpg" mode="merge"/>
+    <filter root="/content/experience-fragments/pressrelease" mode="merge"/>
+</workspaceFilter>
