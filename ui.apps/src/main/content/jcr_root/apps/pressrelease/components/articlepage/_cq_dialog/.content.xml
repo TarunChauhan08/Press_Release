@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0" xmlns:granite="http://www.adobe.com/jcr/granite/1.0"
+    jcr:primaryType="nt:unstructured"
+    jcr:title="Page"
+    sling:resourceType="cq/gui/components/authoring/dialog"
+    extraClientlibs="[cq.common.wcm,core.wcm.components.page.v3.editor,core.wcm.components.page.v2.editor,cq.wcm.msm.properties,granite.contexthub.configuration,cq.siteadmin.admin.properties,core.wcm.components.image.v3.editor,core.wcm.components.image.v2.editor]"
+    helpPath="https://www.adobe.com/go/aem_cmp_page_v3"
+    mode="edit"
+    trackingFeature="core-components:page:v3">
+    
+    <content
+        jcr:primaryType="nt:unstructured">
+        <items jcr:primaryType="nt:unstructured">
+            <tabs
+                jcr:primaryType="nt:unstructured">
+                <items jcr:primaryType="nt:unstructured">
+                    <basic
+                        jcr:primaryType="nt:unstructured">
+                        <items jcr:primaryType="nt:unstructured">
+                            <column
+                                jcr:primaryType="nt:unstructured">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <moretitles
+                                        jcr:primaryType="nt:unstructured"
+                                        jcr:title="More Titles and Description"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/fieldset"
+                                        cq:showOnCreate="{Boolean}true">
+                                        <items jcr:primaryType="nt:unstructured">
+                                            <pageTitle
+                                                jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                fieldLabel="Page Title"
+                                                name="./pageTitle"
+                                                cq:showOnCreate="{Boolean}true"/>
+                                            <navTitle
+                                                jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                fieldLabel="Navigation Title"
+                                                name="./navTitle"
+                                                cq:showOnCreate="{Boolean}true"/>
+                                            <subtitle
+                                                jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                fieldLabel="Subtitle"
+                                                name="./subtitle"
+                                                cq:showOnCreate="{Boolean}true"/>
+                                            <description
+                                                jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/textarea"
+                                                fieldLabel="Description"
+                                                name="./jcr:description"
+                                                cq:showOnCreate="{Boolean}true"/>
+                                        </items>
+                                    </moretitles>
+                                </items>
+                            </column>
+                        </items>
+                    </basic>
+                    <customMetadata
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Article Metadata"
+                        sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+                        sling:orderBefore="socialmedia">
+                        <items jcr:primaryType="nt:unstructured">
+                            <column
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/container">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <articlePublishedDateField
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/datepicker"
+                                        fieldLabel="Published Date"
+                                        name="./articlePublishedDate"
+                                        required="{Boolean}true"
+                                        type="datetime"/>
+                                    <articleTitleField
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                        fieldLabel="Article Title"
+                                        name="./articleTitle"
+                                        cq:showOnCreate="{Boolean}true"/>
+                                    <articleDescriptionField
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/textarea"
+                                        fieldLabel="Article Description"
+                                        name="./articleDescription"
+                                        cq:showOnCreate="{Boolean}true"/>
+                                    <articleImageField
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="cq/gui/components/authoring/dialog/fileupload"
+                                        allowUpload="{Boolean}false"
+                                        autoStart="{Boolean}false"
+                                        class="cq-droptarget"
+                                        fieldLabel="Article Image"
+                                        fileReferenceParameter="./articleImage"
+                                        mimeTypes="[image/gif,image/jpeg,image/png,image/tiff,image/svg+xml,image/webp]"
+                                        multiple="{Boolean}false"
+                                        name="./file"
+                                        title="Select Image Asset"
+                                        useHTML5="{Boolean}true"/>
+                                </items>
+                            </column>
+                        </items>
+                    </customMetadata>
+                </items>
+            </tabs>
+        </items>
+    </content>
+</jcr:root>
