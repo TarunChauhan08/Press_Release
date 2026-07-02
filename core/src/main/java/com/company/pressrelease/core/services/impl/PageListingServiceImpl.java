@@ -143,7 +143,7 @@ public class PageListingServiceImpl implements PageListingService {
             }
 
         if (StringUtils.isBlank(image)) {
-            image = page.getProperties().get("image/fileReference", String.class);
+            image = page.getProperties().get("fileReference", String.class);
         }
 
 
