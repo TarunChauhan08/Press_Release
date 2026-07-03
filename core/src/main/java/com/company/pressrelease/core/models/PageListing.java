@@ -29,23 +29,32 @@ public class PageListing {
 
     protected static final String RESOURCE_TYPE = "pressrelease/components/pagelisting";
 
+    /** Parent path value from the component properties */
     @ValueMapValue
     private String parentPath;
 
+    /** Array of tags to filter the page list */
     @ValueMapValue
     private String[] tags;
 
+    /** Number of cards/limit to display */
     @ValueMapValue
     private Integer numberOfCards;
 
+    /** AEM ResourceResolver for mapping paths */
     @SlingObject
     private ResourceResolver resourceResolver;
 
+    /** PageListingService reference injected by OSGi */
     @OSGiService
     private PageListingService pageListingService;
 
+    /** List of retrieved page items */
     private List<PageListingItem> items = new ArrayList<>();
 
+    /**
+     * PostConstruct initialization method that fetches the page list using the service.
+     */
     @PostConstruct
     protected void init() {
         if (pageListingService != null && resourceResolver != null) {
@@ -53,10 +62,20 @@ public class PageListing {
         }
     }
 
+    /**
+     * Gets the list of retrieved page items.
+     *
+     * @return the list of {@link PageListingItem}
+     */
     public List<PageListingItem> getItems() {
         return items;
     }
 
+    /**
+     * Checks if the list of retrieved page items is empty.
+     *
+     * @return true if the list of items is empty, false otherwise
+     */
     public boolean isEmpty() {
         return items.isEmpty();
     }

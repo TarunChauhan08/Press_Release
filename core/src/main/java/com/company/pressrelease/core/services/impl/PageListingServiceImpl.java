@@ -26,14 +26,52 @@ import com.day.cq.wcm.api.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Implementation of the {@link PageListingService} interface.
+ * Retrieves AEM pages under a given path, matching optional tags,
+ * and mapping them to {@link PageListingItem} objects.
+ */
 @Component(service = PageListingService.class, immediate = true)
 public class PageListingServiceImpl implements PageListingService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PageListingServiceImpl.class);
 
+    /** Property name for custom publish date */
+    public static final String PROPERTY_CUSTOM_PUBLISH_DATE = "customPublishDate";
+
+    /** Property name for custom title */
+    public static final String PROPERTY_CUSTOM_TITLE = "customTitle";
+
+    /** Property name for custom description */
+    public static final String PROPERTY_CUSTOM_DESCRIPTION = "customDescription";
+
+    /** Property name for custom image */
+    public static final String PROPERTY_CUSTOM_IMAGE = "customImage";
+
+    /** Property path for image file reference inside the image node */
+    public static final String PROPERTY_IMAGE_FILE_REFERENCE = "image/fileReference";
+
+    /** Property name for file reference */
+    public static final String PROPERTY_FILE_REFERENCE = "fileReference";
+
+    /** Template path for press report pages */
+    public static final String TEMPLATE_PRESS_REPORT = "/conf/pressrelease/settings/wcm/templates/press-report-page";
+
+    /** Template path for story pages */
+    public static final String TEMPLATE_STORY = "/conf/pressrelease/settings/wcm/templates/story-page";
+
+    /** Template path for article pages */
+    public static final String TEMPLATE_ARTICLE = "/conf/pressrelease/settings/wcm/templates/article-page";
+
+    /** Default number of cards/results to limit to */
+    private static final int DEFAULT_LIMIT = 5;
+
     @Reference
     private QueryBuilder queryBuilder;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<PageListingItem> getPageListingItems(
             ResourceResolver resourceResolver,
@@ -47,20 +85,20 @@ public class PageListingServiceImpl implements PageListingService {
             return items;
         }
 
-        int limit = (numberOfCards != null) ? numberOfCards : 5;
+        int limit = (numberOfCards != null) ? numberOfCards : DEFAULT_LIMIT;
 
         Map<String, String> queryMap = new HashMap<>();
         queryMap.put("path", parentPath);
         queryMap.put("type", "cq:Page");
         queryMap.put("p.limit", String.valueOf(limit));
 
-        queryMap.put("orderby", "@jcr:content/customPublishDate");
+        queryMap.put("orderby", "@jcr:content/" + PROPERTY_CUSTOM_PUBLISH_DATE);
         queryMap.put("orderby.sort", "desc");
 
         queryMap.put("1_property", "jcr:content/cq:template");
-        queryMap.put("1_property.1_value", "/conf/pressrelease/settings/wcm/templates/press-report-page");
-        queryMap.put("1_property.2_value", "/conf/pressrelease/settings/wcm/templates/story-page");
-        queryMap.put("1_property.3_value", "/conf/pressrelease/settings/wcm/templates/article-page");
+        queryMap.put("1_property.1_value", TEMPLATE_PRESS_REPORT);
+        queryMap.put("1_property.2_value", TEMPLATE_STORY);
+        queryMap.put("1_property.3_value", TEMPLATE_ARTICLE);
 
         if (tags != null && tags.length > 0) {
             List<String> validTags = new ArrayList<>();
@@ -98,7 +136,7 @@ public class PageListingServiceImpl implements PageListingService {
                         }
                     }
                 }
-            } catch (RepositoryException  e) {
+            } catch (RepositoryException e) {
                 LOGGER.error("Error in getting hit: {}", e.getMessage(), e);
             }
         }
@@ -106,14 +144,21 @@ public class PageListingServiceImpl implements PageListingService {
         return items;
     }
 
-
+    /**
+     * Maps an AEM {@link Page} to a {@link PageListingItem} using custom properties.
+     * Fallbacks to standard page properties if custom ones are blank or missing.
+     *
+     * @param page             the AEM Page to map
+     * @param resourceResolver the ResourceResolver for path mapping
+     * @return the mapped PageListingItem
+     */
     private PageListingItem mapPageToItem(Page page, ResourceResolver resourceResolver) {
         ValueMap properties = page.getProperties();
 
-        Calendar publishDate = properties.get("customPublishDate", Calendar.class);
-        String title = properties.get("customTitle", String.class);
-        String description = properties.get("customDescription", String.class);
-        String image = properties.get("customImage", String.class);
+        Calendar publishDate = properties.get(PROPERTY_CUSTOM_PUBLISH_DATE, Calendar.class);
+        String title = properties.get(PROPERTY_CUSTOM_TITLE, String.class);
+        String description = properties.get(PROPERTY_CUSTOM_DESCRIPTION, String.class);
+        String image = properties.get(PROPERTY_CUSTOM_IMAGE, String.class);
         String pagePath = resourceResolver.map(page.getPath());
 
         if (StringUtils.isBlank(title)) {
@@ -125,11 +170,11 @@ public class PageListingServiceImpl implements PageListingService {
         }
 
         if (StringUtils.isBlank(image)) {
-            image = properties.get("image/fileReference", String.class);
+            image = properties.get(PROPERTY_IMAGE_FILE_REFERENCE, String.class);
         }
 
         if (StringUtils.isBlank(image)) {
-            image = properties.get("fileReference", String.class);
+            image = properties.get(PROPERTY_FILE_REFERENCE, String.class);
         }
 
         return new PageListingItem(title, description, image, publishDate, pagePath);
