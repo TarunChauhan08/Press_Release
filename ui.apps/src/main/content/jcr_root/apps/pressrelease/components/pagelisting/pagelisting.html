@@ -1,0 +1,29 @@
+<sly data-sly-use.model="com.company.pressrelease.core.models.PageListing">
+    <div data-sly-test="${wcmmode.edit && model.empty}" class="cq-placeholder" data-emptytext="Page Listing Component"></div>
+
+    <div class="cmp-pagelisting" data-sly-test="${!model.empty}">
+        <ul class="cmp-pagelisting__list" style="list-style: none; padding: 0;" data-sly-list.item="${model.items}">
+            <li class="cmp-pagelisting__item" style="margin-bottom: 30px; border-bottom: 1px solid #ccc; padding-bottom: 20px;">
+                <div class="cmp-pagelisting__card">
+                    <div class="cmp-pagelisting__image" data-sly-test="${item.image}">
+                        <img src="${item.image}" alt="${item.title}" style="max-width: 300px; display: block; margin-bottom: 10px;" />
+                    </div>
+                    <div class="cmp-pagelisting__content">
+                        <h2 class="cmp-pagelisting__title" style="font-size: 32px; margin: 5px 0;">
+                            <a href="${item.pagePath}.html" style="color: red; text-decoration: none;">${item.title}</a>
+                        </h2>
+                        <p class="cmp-pagelisting__date" data-sly-test="${item.publishDate}" style="font-size: 20px; color: red; margin: 5px 0;">
+                            Published Date: ${'yyyy-MM-dd HH:mm' @ format=item.publishDate}
+                        </p>
+                        <p class="cmp-pagelisting__image-path" data-sly-test="${item.image}" style="font-size: 20px; color: red; margin: 5px 0;">
+                            Image Path: ${item.image}
+                        </p>
+                        <p class="cmp-pagelisting__desc" data-sly-test="${item.description}" style="font-size: 20px; color: red; margin: 5px 0;">
+                            Description: ${item.description}
+                        </p>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</sly>
