@@ -2,11 +2,9 @@ package com.company.pressrelease.core.services.impl;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.sling.api.resource.ValueMap;
 import javax.jcr.Session;
 import javax.jcr.RepositoryException;
@@ -49,12 +47,15 @@ public class PageListingServiceImpl implements PageListingService {
             return items;
         }
 
+        int limit = (numberOfCards != null) ? numberOfCards : 5;
 
         Map<String, String> queryMap = new HashMap<>();
         queryMap.put("path", parentPath);
         queryMap.put("type", "cq:Page");
-        queryMap.put("p.limit", "-1");
+        queryMap.put("p.limit", String.valueOf(limit));
 
+        queryMap.put("orderby", "@jcr:content/customPublishDate");
+        queryMap.put("orderby.sort", "desc");
 
         queryMap.put("1_property", "jcr:content/cq:template");
         queryMap.put("1_property.1_value", "/conf/pressrelease/settings/wcm/templates/press-report-page");
@@ -85,7 +86,6 @@ public class PageListingServiceImpl implements PageListingService {
         Query query = queryBuilder.createQuery(PredicateGroup.create(queryMap), session);
         SearchResult result = query.getResult();
 
-        List<PageListingItem> rawItems = new ArrayList<>();
         for (Hit hit : result.getHits()) {
             try {
                 Resource pageResource = hit.getResource();
@@ -94,7 +94,7 @@ public class PageListingServiceImpl implements PageListingService {
                     if (page != null) {
                         PageListingItem item = mapPageToItem(page, resourceResolver);
                         if (item != null) {
-                            rawItems.add(item);
+                            items.add(item);
                         }
                     }
                 }
@@ -103,137 +103,35 @@ public class PageListingServiceImpl implements PageListingService {
             }
         }
 
-
-        rawItems.sort(
-                Comparator.comparing(
-                        PageListingItem::getPublishDate,
-                        Comparator.nullsLast(Comparator.reverseOrder())
-                )
-        );
-
-        int limit = (numberOfCards != null) ? numberOfCards : 5;
-        return rawItems.stream()
-                .limit(limit)
-                .collect(Collectors.toList());
+        return items;
     }
 
 
     private PageListingItem mapPageToItem(Page page, ResourceResolver resourceResolver) {
-        TemplateType templateType = TemplateType.fromPage(page);
+        ValueMap properties = page.getProperties();
 
-        String title = null;
-        String description = null;
-        String image = null;
-        Calendar publishDate = null;
+        Calendar publishDate = properties.get("customPublishDate", Calendar.class);
+        String title = properties.get("customTitle", String.class);
+        String description = properties.get("customDescription", String.class);
+        String image = properties.get("customImage", String.class);
         String pagePath = resourceResolver.map(page.getPath());
 
-        if (templateType != null) {
-            ValueMap properties = page.getProperties();
-            publishDate = properties.get(templateType.getPublishDateProp(), Calendar.class);
-            title = properties.get(templateType.getTitleProp(), String.class);
-            description = properties.get(templateType.getDescProp(), String.class);
-            image = properties.get(templateType.getImageProp(), String.class);
+        if (StringUtils.isBlank(title)) {
+            title = page.getTitle();
         }
-            if (StringUtils.isBlank(title)) {
-                title = page.getTitle();
-            }
 
-            if (StringUtils.isBlank(description)) {
-                description = page.getDescription();
-            }
+        if (StringUtils.isBlank(description)) {
+            description = page.getDescription();
+        }
 
         if (StringUtils.isBlank(image)) {
-            image = page.getProperties().get("fileReference", String.class);
+            image = properties.get("image/fileReference", String.class);
         }
 
+        if (StringUtils.isBlank(image)) {
+            image = properties.get("fileReference", String.class);
+        }
 
         return new PageListingItem(title, description, image, publishDate, pagePath);
-    }
-
-
-
-    private enum TemplateType {
-        PRESS_REPORT(
-                "pressReportPublishedDate",
-                "pressReportTitle",
-                "pressReportDescription",
-                "pressReportImage",
-                "/conf/pressrelease/settings/wcm/templates/press-report-page"
-        ),
-        STORY(
-                "storyPublishedDate",
-                "storyTitle",
-                "storyDescription",
-                "storyImage",
-                "/conf/pressrelease/settings/wcm/templates/story-page"
-        ),
-        ARTICLE(
-                "articlePublishedDate",
-                "articleTitle",
-                "articleDescription",
-                "articleImage",
-                "/conf/pressrelease/settings/wcm/templates/article-page"
-        );
-
-        private  String publishDateProp;
-        private  String titleProp;
-        private  String descProp;
-        private  String imageProp;
-        private  String templatePath;
-
-        TemplateType(String publishDateProp, String titleProp, String descProp, String imageProp, String templatePath) {
-            this.publishDateProp = publishDateProp;
-            this.titleProp = titleProp;
-            this.descProp = descProp;
-            this.imageProp = imageProp;
-            this.templatePath = templatePath;
-        }
-
-        public String getPublishDateProp() {
-            return publishDateProp;
-        }
-
-        public String getTitleProp() {
-            return titleProp;
-        }
-
-        public String getDescProp() {
-            return descProp;
-        }
-
-        public String getImageProp() {
-            return imageProp;
-        }
-
-        public String getTemplatePath() {
-            return templatePath;
-        }
-
-        public static TemplateType fromPage(Page page) {
-            if (page == null) {
-                return null;
-            }
-            String template = page.getProperties().get("cq:template", String.class);
-            if (template != null) {
-                for (TemplateType type : values()) {
-                    if (template.equals(type.getTemplatePath()) || template.endsWith("/" + type.name().toLowerCase().replace("_", "-"))) {
-                        return type;
-                    }
-                }
-            }
-
-            ValueMap props = page.getProperties();
-            if ( props.containsKey("pressReportPublishedDate")) {
-                return PRESS_REPORT;
-            }
-            if ( props.containsKey("storyPublishedDate")) {
-                return STORY;
-            }
-            if ( props.containsKey("articlePublishedDate")) {
-                return ARTICLE;
-            }
-
-            return null;
-        }
     }
 }
